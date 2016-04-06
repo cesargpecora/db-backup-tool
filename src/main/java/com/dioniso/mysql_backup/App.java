@@ -11,6 +11,11 @@ public class App
     public static void main( String[] args )
     {
         DBBackupService dBBackupService = new DBBackupService();
-        dBBackupService.backupDB();
+        if (args.length > 0 && args[0].equals("amazon")){
+        	dBBackupService.backupDBToAmazonS3();	        
+        }
+        else{
+        	dBBackupService.backupDBToLocalStorage();
+        }
     }
 }

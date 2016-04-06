@@ -12,7 +12,7 @@ import java.util.Properties;
 public class DBBackupServiceProperties {
     
     private static final String S3_BUCKET_PROPERTY_KEY = "s3.bucket";
-    private static final String S3_KEY_PROPERTY_KEY = "s3.key";
+    private static final String S3_KEY_PREFIX_PROPERTY_KEY = "s3.key.prefix";
     private static final String DUMP_EXE_PATH_PROPERTY_KEY = "dump.exe.path";
     private static final String DB_HOST_PROPERTY_KEY = "db.host";
     private static final String DB_PORT_PROPERTY_KEY = "db.port";
@@ -24,7 +24,7 @@ public class DBBackupServiceProperties {
     private static final String PROPERTIES_FILE_NAME = "config.properties";
     
     private String s3Bucket;
-    private String s3Key;
+    private String s3KeyPrefix;
     private String dumpExePath;
     private String dBHost;
     private String dBPort;
@@ -52,7 +52,7 @@ public class DBBackupServiceProperties {
         inputStream.close();
         
         s3Bucket = prop.getProperty(S3_BUCKET_PROPERTY_KEY);
-        s3Key = prop.getProperty(S3_KEY_PROPERTY_KEY);
+        s3KeyPrefix = prop.getProperty(S3_KEY_PREFIX_PROPERTY_KEY);
         dumpExePath = prop.getProperty(DUMP_EXE_PATH_PROPERTY_KEY);
         dBHost = prop.getProperty(DB_HOST_PROPERTY_KEY);
         dBPort = prop.getProperty(DB_PORT_PROPERTY_KEY);
@@ -66,8 +66,8 @@ public class DBBackupServiceProperties {
         return s3Bucket;
     }
 
-    public String getS3Key() {
-        return s3Key;
+    public String getS3KeyPrefix() {
+        return s3KeyPrefix;
     }
 
     public String getDumpExePath() {

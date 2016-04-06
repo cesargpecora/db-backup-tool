@@ -29,44 +29,36 @@ public class MySQLDBBackupService {
      * @param backupPath
      * @return
      */
-    public boolean backupDataWithOutDatabase(String dumpExePath, String host, String port, String user,
-            String password, String database, String backupPath) {
-        boolean status = false;
-        try {
-            Process p = null;
+    public String backupDataWithOutDatabase(String dumpExePath, String host, String port, String user,
+            String password, String database, String backupPath) throws IOException, InterruptedException{
+        String filepath = null;
+        Process p = null;
 
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            Date date = new Date();
-            String filepath = "backup(without_DB)-" + database + "-" + host + "-(" + dateFormat.format(date) + ").sql";
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = new Date();
+        filepath = "backup-" + database + "-" + host + "-(" + dateFormat.format(date) + ").sql";
 
-            String batchCommand = "";
-            if (password != "") {
-                // only backup the data not included create database
-                batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " --password="
-                        + password + " " + database + " -r \"" + backupPath + "" + filepath + "\"";
-            } else {
-                batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " " + database
-                        + " -r \"" + backupPath + "" + filepath + "\"";
-            }
-
-            Runtime runtime = Runtime.getRuntime();
-            p = runtime.exec(batchCommand);
-            int processComplete = p.waitFor();
-
-            if (processComplete == 0) {
-                status = true;
-                LOG.info("Backup created successfully for without DB " + database + " in " + host + ":" + port);
-            } else {
-                status = false;
-                LOG.info("Could not create the backup for without DB " + database + " in " + host + ":" + port);
-            }
-
-        } catch (IOException ioe) {
-            LOG.error(ioe, ioe.getCause());
-        } catch (Exception e) {
-            LOG.error(e, e.getCause());
+        String batchCommand = "";
+        if (password != "") {
+            // only backup the data not included create database
+            batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " --password="
+                    + password + " " + database + " -r \"" + backupPath + filepath + "\"";
+        } else {
+            batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " " + database
+                    + " -r \"" + backupPath + filepath + "\"";
         }
-        return status;
+
+        Runtime runtime = Runtime.getRuntime();
+        p = runtime.exec(batchCommand);
+        int processComplete = p.waitFor();
+
+        if (processComplete == 0) {
+            LOG.info("Backup created successfully for DB " + database + " in " + host + ":" + port);
+        } else {
+            LOG.info("Could not create the backup for DB " + database + " in " + host + ":" + port);
+            throw new IOException("Process didn't finish correctly.");
+        }
+        return filepath;
     }
     
     /**
@@ -82,36 +74,37 @@ public class MySQLDBBackupService {
      * @throws IOException
      * @throws InterruptedException
      */
-    public String backupDataWithDatabase(String dumpExePath, String host, String port, String user, String password, String database, String backupPath) throws IOException, InterruptedException {        
-        String filepath = null;
+	public String backupDataWithDatabase(String dumpExePath, String host, String port, String user, String password,
+			String database, String backupPath) throws IOException, InterruptedException {
+		String filepath = null;
 
-        Process p = null;
+		Process p = null;
 
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        Date date = new Date();
-        filepath = "backup(with_DB)-" + database + "-" + host + "-(" + dateFormat.format(date) + ").sql";
+		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		Date date = new Date();
+		filepath = "backup-" + database + "-" + host + "-(" + dateFormat.format(date) + ").sql";
 
-        String batchCommand = "";
-        if (password != "") {
-            // Backup with database
-            batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " --password=" + password
-                    + " --add-drop-database -B " + database + " -r \"" + backupPath + "" + filepath + "\"";
-        } else {
-            batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " --add-drop-database -B "
-                    + database + " -r \"" + backupPath + "" + filepath + "\"";
-        }
+		String batchCommand = "";
+		if (password != "") {
+			// Backup with database
+			batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " --password=" + password
+					+ " --add-drop-database -B " + database + " -r \"" + backupPath + filepath + "\"";
+		} else {
+			batchCommand = dumpExePath + " -h " + host + " --port " + port + " -u " + user + " --add-drop-database -B "
+					+ database + " -r \"" + backupPath + filepath + "\"";
+		}
 
-        Runtime runtime = Runtime.getRuntime();
-        p = runtime.exec(batchCommand);
-        int processComplete = p.waitFor();
+		Runtime runtime = Runtime.getRuntime();
+		p = runtime.exec(batchCommand);
+		int processComplete = p.waitFor();
 
-        if (processComplete == 0) {
-            LOG.info("Backup created successfully for with DB " + database + " in " + host + ":" + port);
-        } else {
-            LOG.info("Could not create the backup for with DB " + database + " in " + host + ":" + port);
-            throw new IOException("Process didn't finish correctly.");
-        }
-        return filepath;
-    }
+		if (processComplete == 0) {
+			LOG.info("Backup created successfully for DB " + database + " in " + host + ":" + port);
+		} else {
+			LOG.info("Could not create the backup for DB " + database + " in " + host + ":" + port);
+			throw new IOException("Process didn't finish correctly.");
+		}
+		return filepath;
+	}
 
 }
