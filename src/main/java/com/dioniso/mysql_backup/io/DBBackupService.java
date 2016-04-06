@@ -47,7 +47,7 @@ public class DBBackupService {
         } catch (InterruptedException e) {
         	LOG.error("Failed while backing up DB, when trying to run script.",e.getCause());
         }
-        return filePath;
+        return backupPath + filePath;
     }
     
     /**
@@ -63,7 +63,10 @@ public class DBBackupService {
         	String s3Key = backupProperties.getS3KeyPrefix() + dBBackupFile.getName();
             AmazonS3Service amazonS3Service = new AmazonS3Service();            
             
-            amazonS3Service.addToBucket(backupProperties.getS3Bucket(), s3Key, dBBackupFile);            
+            amazonS3Service.addToBucket(backupProperties.getS3Bucket(), s3Key, dBBackupFile);
+            
+            LOG.info("File successfully uploaded to Amazon S3: " + dBBackupFile.getName());
+            
             dBBackupFile.delete();
             
         } catch (IOException e) {
